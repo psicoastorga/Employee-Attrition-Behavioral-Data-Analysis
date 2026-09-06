@@ -1,0 +1,84 @@
+---
+title: "Rotacion"
+output: html_document
+date: "2026-06-13"
+---
+
+```{r}
+
+df <- read.csv("IBM-HR-Employee-Attrition.csv")
+
+names(df) <- c(
+  "edad",
+  "rotacion",
+  "viajes_negocio",
+  "tarifa_diaria",
+  "departamento",
+  "distancia_hogar",
+  "educacion",
+  "area_educacion",
+  "cantidad_empleados",
+  "numero_empleado",
+  "satisfaccion_entorno",
+  "genero",
+  "tarifa_hora",
+  "involucramiento_laboral",
+  "nivel_puesto",
+  "rol_laboral",
+  "satisfaccion_laboral",
+  "estado_civil",
+  "ingreso_mensual",
+  "tarifa_mensual",
+  "cantidad_empresas_trabajadas",
+  "mayor_18",
+  "horas_extra",
+  "porcentaje_aumento_salarial",
+  "evaluacion_desempeno",
+  "satisfaccion_relaciones",
+  "horas_estandar",
+  "nivel_opciones_acciones",
+  "anos_experiencia_laboral",
+  "capacitaciones_ultimo_ano",
+  "balance_vida_trabajo",
+  "anos_en_empresa",
+  "anos_en_rol_actual",
+  "anos_desde_ultimo_ascenso",
+  "anos_con_gerente_actual"
+)
+
+names(df)
+
+```
+```{r}
+write.csv(
+  df,
+  "IBM-HR-Employee-Attrition-ES.csv",
+  row.names = FALSE
+)
+```
+
+```{r}
+library(dplyr)
+
+resumen <- data.frame(
+  Variable = names(df[sapply(df, is.numeric)]),
+  Mediana = round(sapply(df[sapply(df, is.numeric)], median, na.rm = TRUE), 2),
+  Media = round(sapply(df[sapply(df, is.numeric)], mean, na.rm = TRUE), 2),
+  Desvio = round(sapply(df[sapply(df, is.numeric)], sd, na.rm = TRUE), 2),
+  Minimo = round(sapply(df[sapply(df, is.numeric)], min, na.rm = TRUE), 2),
+  Maximo = round(sapply(df[sapply(df, is.numeric)], max, na.rm = TRUE), 2)
+)
+
+resumen
+```
+
+```{r}
+library(papaja)
+
+apa_table(
+  resumen,
+  caption = "Estadísticos descriptivos de las variables numéricas."
+)
+```
+
+
