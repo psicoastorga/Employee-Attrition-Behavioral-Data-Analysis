@@ -1,0 +1,19 @@
+---
+title: "Analisis Exploratorios"
+output: html_document
+---
+
+```{r}
+datos <- read.csv("../datos traduccion/IBM-HR-Employee-Attrition-ES.csv")
+
+```
+
+##Ver si hay datos faltantes o extremos en las variables 
+
+```{r}
+
+mean(datos$edad)
+
+```
+
+
