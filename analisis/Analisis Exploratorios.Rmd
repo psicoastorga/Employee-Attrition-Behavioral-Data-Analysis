@@ -8,7 +8,9 @@ datos <- read.csv("../datos traduccion/IBM-HR-Employee-Attrition-ES.csv")
 
 ```
 
-##Ver si hay datos faltantes o extremos en las variables 
+##ANALISIS PREVIO DE LOS DATOS 
+
+#Examen gráfico de la naturaleza de las variables 
 
 ```{r}
 
