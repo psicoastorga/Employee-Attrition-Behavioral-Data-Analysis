@@ -12,10 +12,156 @@ datos <- read.csv("../datos traduccion/IBM-HR-Employee-Attrition-ES.csv")
 
 #Examen gráfico de la naturaleza de las variables 
 
+Ver el tipo de dato de cada variable
 ```{r}
 
-mean(datos$edad)
+str(datos)
+```
+
+Eliminación de variables constantes EmployeeCount (Cantidad_empleados), Over18 (Mayor 18) y StandardHours.
+```{r}
+datos <- datos[, !names(datos) %in% c("cantidad_empleados", "mayor_18", "horas_estandar")]
 
 ```
+
+Elimina la variable EmployeeNumber (numero_empleado) por tener valores arbitrarios.
+
+```{r}
+datos <- datos[, !names(datos) %in% "numero_empleado"]
+
+```
+
+
+Crear una variable variables_numericas la cual es una lista que contiene todas las variables inter y numeric de datos
+```{r}
+variables_numericas <- names(datos)[sapply(datos, is.numeric)]
+```
+
+Crear una variable variables_no_numericas la cual es una lista que contiene todas las variables char y no numericas
+```{r}
+variables_no_numericas <- names(datos)[!sapply(datos, is.numeric)]
+```
+
+
+Generar un histograma por cada variable contenida en datos_numericos
+```{r}
+library(tidyverse)
+
+datos %>%
+  select(all_of(variables_numericas)) %>%
+  pivot_longer(everything()) %>%
+  ggplot(aes(x = value)) +
+  geom_histogram() +
+  facet_wrap(~name, scales = "free")
+```
+
+Grafico de barras para las variables no numericas 
+
+```{r}
+datos %>%
+  select(all_of(variables_no_numericas)) %>%
+  pivot_longer(everything()) %>%
+  ggplot(aes(x = value)) +
+  geom_bar() +
+  facet_wrap(~name, scales = "free") +
+  coord_flip() +
+  theme_minimal()
+```
+
+Dividir variables INTERVALARES/PROPORCIONALES de las ORDINALES 
+
+```{r}
+variables_numericas
+```
+ORDINALES
+"satisfaccion_entorno" 
+"educacion"
+"involucramiento_laboral"
+"satisfaccion_laboral" 
+"evaluacion_desempeno" 
+"satisfaccion_relaciones"
+"balance_vida_trabajo" 
+"nivel_puesto"
+"nivel_opciones_acciones" 
+
+INTERVALARES / PROPORCIONALES
+"edad"
+"distancia_hogar"
+"tarifa_mensual"
+"porcentaje_aumento_salarial"
+"anos_experiencia_laboral"
+"anos_en_rol_actual"
+"anos_con_gerente_actual"
+"tarifa_diaria"
+"tarifa_hora"
+"ingreso_mensual"
+"cantidad_empresas_trabajadas"
+"capacitaciones_ultimo_ano"
+"anos_en_empresa"
+"anos_desde_ultimo_ascenso"
+
+
+Education
+1 'Below College'
+2 'College'
+3 'Bachelor'
+4 'Master'
+5 'Doctor'
+
+EnvironmentSatisfaction
+1 'Low'
+2 'Medium'
+3 'High'
+4 'Very High'
+
+JobInvolvement
+1 'Low'
+2 'Medium'
+3 'High'
+4 'Very High'
+
+JobSatisfaction
+1 'Low'
+2 'Medium'
+3 'High'
+4 'Very High'
+
+PerformanceRating
+1 'Low'
+2 'Good'
+3 'Excellent'
+4 'Outstanding'
+
+RelationshipSatisfaction
+1 'Low'
+2 'Medium'
+3 'High'
+4 'Very High'
+
+WorkLifeBalance
+1 'Bad'
+2 'Good'
+3 'Better'
+4 'Best'
+
+
+Correlaciones entre variables numericas 
+
+```{r}
+library(ggpairs)
+library(ggplot2)
+# Filtrando el dataframe original usando tu vector de nombres
+ggpairs(datos[, variables_numericas],
+        lower = list(continuous = wrap("smooth", method = "lm", se = FALSE, color = "royalblue")),
+        upper = list(continuous = wrap("cor", method = "pearson", color = "darkred")),
+        diag = list(continuous = wrap("densityDiag", fill = "gray80", alpha = 0.6))) +
+  theme_minimal() +
+  labs(title = "Matriz de Correlación de Pearson para Variables Métricas")
+
+
+```
+
+
+
 
 
