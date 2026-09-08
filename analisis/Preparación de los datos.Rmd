@@ -1,0 +1,145 @@
+---
+title: "Preparación de los datos"
+output: html_document
+---
+
+```{r}
+datos <- read.csv("../datos traduccion/IBM-HR-Employee-Attrition-ES.csv")
+
+```
+
+##PREPARACIÓN DE LOS DATOS
+
+Eliminación de variables constantes EmployeeCount (Cantidad_empleados), Over18 (Mayor 18) y StandardHours.
+```{r}
+datos <- datos[, !names(datos) %in% c("cantidad_empleados", "mayor_18", "horas_estandar")]
+
+```
+
+Elimina la variable EmployeeNumber (numero_empleado) por tener valores arbitrarios.
+
+```{r}
+datos <- datos[, !names(datos) %in% "numero_empleado"]
+
+```
+
+Transformación de variables ordinales a factores ordenados 
+
+Education
+1 'Below College'
+2 'College'
+3 'Bachelor'
+4 'Master'
+5 'Doctor'
+
+```{r}
+datos$educacion <- factor(datos$educacion, 
+                          levels = c(1, 2, 3, 4, 5),
+                          labels = c("Below College", "College", "Bachelor", "Master", "Doctor"), 
+                          ordered = TRUE)
+```
+
+EnvironmentSatisfaction
+1 'Low'
+2 'Medium'
+3 'High'
+4 'Very High'
+
+```{r}
+datos$satisfaccion_entorno <- factor(datos$satisfaccion_entorno, 
+                          levels = c(1, 2, 3, 4),
+                          labels = c("Low", "Medium", "High", "Very High"), 
+                          ordered = TRUE)
+```
+
+JobInvolvement
+1 'Low'
+2 'Medium'
+3 'High'
+4 'Very High'
+
+```{r}
+datos$involucramiento_laboral <- factor(datos$involucramiento_laboral, 
+                          levels = c(1, 2, 3, 4),
+                          labels = c("Low", "Medium", "High", "Very High"), 
+                          ordered = TRUE)
+```
+
+JobSatisfaction
+1 'Low'
+2 'Medium'
+3 'High'
+4 'Very High'
+
+```{r}
+datos$satisfaccion_laboral <- factor(datos$satisfaccion_laboral, 
+                          levels = c(1, 2, 3, 4),
+                          labels = c("Low", "Medium", "High", "Very High"), 
+                          ordered = TRUE)
+```
+
+PerformanceRating
+1 'Low'
+2 'Good'
+3 'Excellent'
+4 'Outstanding'
+
+```{r}
+datos$evaluacion_desempeno <- factor(datos$evaluacion_desempeno, 
+                          levels = c(1, 2, 3, 4),
+                          labels = c("Low", "Good", "Excellent", "Outstanding"), 
+                          ordered = TRUE)
+```
+
+RelationshipSatisfaction
+1 'Low'
+2 'Medium'
+3 'High'
+4 'Very High'
+
+```{r}
+datos$satisfaccion_relaciones <- factor(datos$satisfaccion_relaciones, 
+                          levels = c(1, 2, 3, 4),
+                          labels = c("Low", "Medium", "High", "Very High"), 
+                          ordered = TRUE)
+```
+
+WorkLifeBalance
+1 'Bad'
+2 'Good'
+3 'Better'
+4 'Best'
+
+```{r}
+datos$balance_vida_trabajo <- factor(datos$balance_vida_trabajo, 
+                          levels = c(1, 2, 3, 4),
+                          labels = c("Bad", "Good", "Better", "Best"), 
+                          ordered = TRUE)
+```
+
+Transformar a factor todas las variables nominales
+
+```{r}
+datos$rotacion <- as.factor(datos$rotacion)
+datos$viajes_negocio <- as.factor(datos$viajes_negocio)
+datos$departamento <- as.factor(datos$departamento)
+datos$area_educacion  <- as.factor(datos$area_educacion)
+datos$genero  <- as.factor(datos$genero)
+datos$rol_laboral <- as.factor(datos$rol_laboral)
+datos$estado_civil  <- as.factor(datos$estado_civil)
+datos$horas_extra   <- as.factor(datos$horas_extra )
+```
+
+```{r}
+str(datos)
+```
+
+#Examen gráfico de la naturaleza de las variables 
+
+
+
+
+
+
+
+
