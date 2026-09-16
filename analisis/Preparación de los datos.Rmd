@@ -5,7 +5,6 @@ output: html_document
 
 ```{r}
 datos <- read.csv("../datos traduccion/IBM-HR-Employee-Attrition-ES.csv")
-
 ```
 
 ##PREPARACIÓN DE LOS DATOS
@@ -136,10 +135,136 @@ str(datos)
 
 #Examen gráfico de la naturaleza de las variables 
 
+#pagina 61 Analisis Multivariante Hair
 
+```{r}
+#muestra la cantiad de datos ausentes por variable / columna
+colSums(is.na(datos))
+```
+No se observaan datos faltantes en la base de datos 
 
+##CASOS ATIPICOS
 
+```{r}
+library(dplyr)
 
+datos_numericos <- datos %>% 
+  select(where(is.numeric))
+
+# 3. Calcular centro y matriz de covarianza
+centro <- colMeans(datos_numericos)
+covarianza <- cov(datos_numericos)
+
+# 4. Calcular Mahalanobis y guardar el resultado en la base filtrada
+datos_numericos$mahalanobis <- mahalanobis(datos_numericos, center = centro, cov = covarianza)
+
+# 5. Identificar atípicos usando Chi-cuadrado
+p <- ncol(datos_numericos) - 1 # Restamos 1 porque ya añadimos la columna 'mahalanobis'
+valor_critico <- qchisq(p = 0.999, df = p)
+
+datos_numericos$es_atipico <- datos_numericos$mahalanobis > valor_critico
+
+# 6. Ver cuántos atípicos se encontraron
+table(datos_numericos$es_atipico)
+
+```
+
+##Graficar los casos atipicos 
+
+```{r}
+# 1. Cargar ggplot2 (instálalo con install.packages("ggplot2") si no lo tienes)
+library(ggplot2)
+
+# 2. Crear una columna con el número de fila/índice para el eje X
+datos_numericos$indice <- 1:nrow(datos_numericos)
+
+# 3. Generar el gráfico de dispersión
+ggplot(datos_numericos, aes(x = indice, y = mahalanobis, color = es_atipico)) +
+  geom_point(alpha = 0.7, size = 2) +
+  # Dibujar la línea del valor crítico
+  geom_hline(yintercept = valor_critico, color = "darkred", linetype = "dashed", size = 1) +
+  # Configurar colores manuales (Azul para normales, Rojo para atípicos)
+  scale_color_manual(values = c("FALSE" = "#2b7bba", "TRUE" = "#d95f02"),
+                     labels = c("Normal (1437)", "Atípico (33)")) +
+  # Etiquetas y títulos
+  labs(title = "Detección de Casos Atípicos (Distancia de Mahalanobis)",
+       subtitle = paste("Línea segmentada representa el valor crítico de Chi-cuadrado:", round(valor_critico, 2)),
+       x = "Índice de la Observación (Fila)",
+       y = "Distancia de Mahalanobis (D²)",
+       color = "Estado del caso") +
+  theme_minimal() +
+  theme(legend.position = "bottom",
+        plot.title = element_text(face = "bold", size = 14))
+```
+
+#Explorar de que variables son estos 33 atipicos 
+
+```{r}
+library(dplyr)
+library(tidyr)
+
+# 1. Calcular los límites univariados (IQR) usando los datos originales
+limites <- datos_numericos %>%
+  select(-mahalanobis, -es_atipico, -indice) %>%
+  summarise(across(everything(), list(
+    inf = ~ quantile(.x, 0.25, na.rm = TRUE) - 1.5 * IQR(.x, na.rm = TRUE),
+    sup = ~ quantile(.x, 0.75, na.rm = TRUE) + 1.5 * IQR(.x, na.rm = TRUE)
+  )))
+
+# 2. Filtrar solo tus 33 casos atípicos
+solo_atipicos <- datos_numericos %>% filter(es_atipico == TRUE)
+
+# 3. Identificar qué variables rompen los límites en esos 33 casos
+nombres_vars <- datos_numericos %>% select(-mahalanobis, -es_atipico, -indice) %>% colnames()
+
+conteo_por_variable <- solo_atipicos %>%
+  select(all_of(nombres_vars)) %>%
+  summarise(across(everything(), ~ sum(.x < limites[[paste0(cur_column(), "_inf")]] | 
+                                       .x > limites[[paste0(cur_column(), "_sup")]]))) %>%
+  pivot_longer(cols = everything(), names_to = "Variable", values_to = "Cantidad_Atipicos") %>%
+  arrange(desc(Cantidad_Atipicos))
+
+# 4. Mostrar el resultado en pantalla
+print(conteo_por_variable)
+```
+
+Grafica de los casos atipos de cada variable 
+
+```{r}
+# 1. Definir la lista de las 9 variables con anomalías
+variables_interes <- c(
+  "anos_en_empresa", "anos_desde_ultimo_ascenso", "anos_experiencia_laboral",
+  "ingreso_mensual", "anos_en_rol_actual", "capacitaciones_ultimo_ano",
+  "anos_con_gerente_actual", "cantidad_empresas_trabajadas", "nivel_opciones_acciones"
+)
+
+# 2. Filtrar solo estas variables junto con la columna de control
+base_filtrada <- datos_numericos %>%
+  select(es_atipico, all_of(variables_interes))
+
+# 3. Transformar a formato largo
+datos_largos_filtrados <- base_filtrada %>%
+  pivot_longer(cols = -es_atipico, names_to = "Variable", values_to = "Valor")
+
+# 4. Generar el gráfico de Boxplots en paneles (cuadrícula de 3x3)
+ggplot(datos_largos_filtrados, aes(x = es_atipico, y = Valor, fill = es_atipico)) +
+  geom_boxplot(outlier.color = "red", outlier.size = 1.5, alpha = 0.7) +
+  # Dividir en una cuadrícula ordenada de 3 columnas
+  facet_wrap(~ Variable, scales = "free_y", ncol = 3) +
+  # Paleta de colores (Azul para Normal, Naranja para Atípico)
+  scale_fill_manual(values = c("FALSE" = "#2b7bba", "TRUE" = "#d95f02"),
+                    labels = c("Normales (1437)", "Atípicos (33)")) +
+  # Personalización de etiquetas
+  labs(title = "Análisis de Boxplots: Variables con Casos Atípicos",
+       subtitle = "Comparación directa entre el grupo normal y los 33 outliers de Mahalanobis",
+       x = "¿Es un caso atípico multivariado?",
+       y = "Valor de la Variable",
+       fill = "Clasificación") +
+  theme_bw() +
+  theme(legend.position = "bottom",
+        strip.text = element_text(face = "bold", size = 10), # Títulos de paneles más legibles
+        plot.title = element_text(face = "bold", size = 14))
+```
 
 
 
