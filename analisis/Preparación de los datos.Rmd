@@ -228,43 +228,8 @@ conteo_por_variable <- solo_atipicos %>%
 print(conteo_por_variable)
 ```
 
-Grafica de los casos atipos de cada variable 
 
-```{r}
-# 1. Definir la lista de las 9 variables con anomalías
-variables_interes <- c(
-  "anos_en_empresa", "anos_desde_ultimo_ascenso", "anos_experiencia_laboral",
-  "ingreso_mensual", "anos_en_rol_actual", "capacitaciones_ultimo_ano",
-  "anos_con_gerente_actual", "cantidad_empresas_trabajadas", "nivel_opciones_acciones"
-)
 
-# 2. Filtrar solo estas variables junto con la columna de control
-base_filtrada <- datos_numericos %>%
-  select(es_atipico, all_of(variables_interes))
-
-# 3. Transformar a formato largo
-datos_largos_filtrados <- base_filtrada %>%
-  pivot_longer(cols = -es_atipico, names_to = "Variable", values_to = "Valor")
-
-# 4. Generar el gráfico de Boxplots en paneles (cuadrícula de 3x3)
-ggplot(datos_largos_filtrados, aes(x = es_atipico, y = Valor, fill = es_atipico)) +
-  geom_boxplot(outlier.color = "red", outlier.size = 1.5, alpha = 0.7) +
-  # Dividir en una cuadrícula ordenada de 3 columnas
-  facet_wrap(~ Variable, scales = "free_y", ncol = 3) +
-  # Paleta de colores (Azul para Normal, Naranja para Atípico)
-  scale_fill_manual(values = c("FALSE" = "#2b7bba", "TRUE" = "#d95f02"),
-                    labels = c("Normales (1437)", "Atípicos (33)")) +
-  # Personalización de etiquetas
-  labs(title = "Análisis de Boxplots: Variables con Casos Atípicos",
-       subtitle = "Comparación directa entre el grupo normal y los 33 outliers de Mahalanobis",
-       x = "¿Es un caso atípico multivariado?",
-       y = "Valor de la Variable",
-       fill = "Clasificación") +
-  theme_bw() +
-  theme(legend.position = "bottom",
-        strip.text = element_text(face = "bold", size = 10), # Títulos de paneles más legibles
-        plot.title = element_text(face = "bold", size = 14))
-```
 
 
 
