@@ -230,6 +230,3 @@ print(conteo_por_variable)
 
 
 
-
-
-

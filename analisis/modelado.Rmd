@@ -1,0 +1,35 @@
+---
+title: "modelado"
+output: html_document
+---
+
+
+```{r}
+str(datos)
+```
+Converitr rotación a binario 1 en si y 0 es no
+
+```{r}
+datos$rotacion <- ifelse(
+  datos$rotacion == "Yes",
+  1,
+  0
+)
+```
+
+```{r}
+
+modelo <- glm(
+  datos$rotacion ~  
+    datos$edad+
+    datos$satisfaccion_entorno +
+    datos$distancia_hogar,
+  data = datos,
+  family = binomial
+)
+```
+
+```{r}
+summary(modelo)
+```
+
