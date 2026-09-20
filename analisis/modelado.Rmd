@@ -17,14 +17,39 @@ datos$rotacion <- ifelse(
 )
 ```
 
+Usar todas las variables como predictoras 
+
 ```{r}
 
 modelo <- glm(
-  datos$rotacion ~  
-    datos$edad+
-    datos$satisfaccion_entorno +
-    datos$distancia_hogar,
+  rotacion ~.
+    ,
   data = datos,
+  family = binomial
+)
+
+```
+```{r}
+options(scipen = 999)
+summary(modelo)
+```
+
+
+Usa solo las variables int como predictoras 
+
+```{r}
+datos_int <- datos[, sapply(datos, is.integer) | names(datos) == "rotacion"]
+
+datos_int
+```
+Con el . incluye todas la variables incluidas en datos_int como predictoras menos la dependiente rotación
+
+```{r}
+
+modelo <- glm(
+  datos$rotacion ~.
+    ,
+  data = datos_int,
   family = binomial
 )
 ```
