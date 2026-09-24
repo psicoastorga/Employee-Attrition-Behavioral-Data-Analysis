@@ -3,10 +3,14 @@ title: "modelado"
 output: html_document
 ---
 
-
 ```{r}
 str(datos)
 ```
+```{r}
+summary(datos$rotacion)
+```
+
+
 Converitr rotación a binario 1 en si y 0 es no
 
 ```{r}
@@ -20,6 +24,7 @@ datos$rotacion <- ifelse(
 Usar todas las variables como predictoras 
 
 ```{r}
+options(scipen = 999, digits = 3)
 
 modelo <- glm(
   rotacion ~.
@@ -28,11 +33,60 @@ modelo <- glm(
   family = binomial
 )
 
-```
-```{r}
-options(scipen = 999)
 summary(modelo)
 ```
+
+```{r}
+exp(coef(modelo))
+```
+
+#Interpretación#
+Es decir, agregar los predictores reduce considerablemente la deviance. Como primera aproximación, eso indica que el conjunto de variables contiene información sobre rotacion.
+
+Manteniendo constantes las demás variables del modelo, los empleados con horas extra tienen aproximadamente 8,1 veces los odds de rotación que los empleados sin horas extra.
+
+Por cada año adicional de edad, los odds de rotación se multiplican por aproximadamente 0,969, manteniendo constantes las demás variables.
+
+
+#Evaluación de porque algunas variables predictoras tiene mucho error en este caso son rol laboral y departamentos 
+
+633.31931177
+
+```{r}
+table(datos$departamento, datos$rotacion)
+
+
+#porcentaje de rotación dentro de cada departamento
+prop.table(
+  table(datos$departamento, datos$rotacion),
+  margin = 1
+)
+
+
+table(datos$rol_laboral, datos$rotacion)
+prop.table(
+  table(datos$rol_laboral, datos$rotacion),
+  margin = 1
+)
+```
+colinealidad
+```{r}
+library(car)
+vif(modelo)
+
+library(brglm2)
+detect_separation(modelo)
+```
+
+
+
+
+
+
+
+
+
+
 
 
 Usa solo las variables int como predictoras 

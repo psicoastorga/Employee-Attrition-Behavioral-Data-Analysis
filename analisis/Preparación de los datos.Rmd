@@ -119,7 +119,7 @@ datos$balance_vida_trabajo <- factor(datos$balance_vida_trabajo,
 Transformar a factor todas las variables nominales
 
 ```{r}
-datos$rotacion <- as.factor(datos$rotacion)
+
 datos$viajes_negocio <- as.factor(datos$viajes_negocio)
 datos$departamento <- as.factor(datos$departamento)
 datos$area_educacion  <- as.factor(datos$area_educacion)
@@ -127,6 +127,15 @@ datos$genero  <- as.factor(datos$genero)
 datos$rol_laboral <- as.factor(datos$rol_laboral)
 datos$estado_civil  <- as.factor(datos$estado_civil)
 datos$horas_extra   <- as.factor(datos$horas_extra )
+```
+
+
+```{r}
+datos$rotacion <- ifelse(
+  datos$rotacion == "Yes",
+  1,
+  0
+)
 ```
 
 ```{r}
